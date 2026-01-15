@@ -19,7 +19,12 @@
   },
   "homepage": "https://github.com/EronAlves1996/The-Turbo-Charged-API-Optimization#readme",
   "devDependencies": {
+    "@types/express": "^5.0.6",
     "@types/node": "^25.0.8",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
   }
 }
