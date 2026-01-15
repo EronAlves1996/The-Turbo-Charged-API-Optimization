@@ -1,0 +1,25 @@
+{
+  "name": "the-turbo-charged-api-optimization",
+  "version": "1.0.0",
+  "description": "![Level 1](https://img.shields.io/badge/Level-1-blue) ![Level 13](https://img.shields.io/badge/Level-13-success) ![Days](https://img.shields.io/badge/Duration-13%20Days-green) ![Timebox](https://img.shields.io/badge/Timebox-2h%2FDay-orange)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EronAlves1996/The-Turbo-Charged-API-Optimization.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/EronAlves1996/The-Turbo-Charged-API-Optimization/issues"
+  },
+  "homepage": "https://github.com/EronAlves1996/The-Turbo-Charged-API-Optimization#readme",
+  "devDependencies": {
+    "@types/node": "^25.0.8",
+    "typescript": "^5.9.3"
+  }
+}
