@@ -4,7 +4,7 @@
   "description": "![Level 1](https://img.shields.io/badge/Level-1-blue) ![Level 13](https://img.shields.io/badge/Level-13-success) ![Days](https://img.shields.io/badge/Duration-13%20Days-green) ![Timebox](https://img.shields.io/badge/Timebox-2h%2FDay-orange)",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "tsx ./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.0.8",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
   "dependencies": {
