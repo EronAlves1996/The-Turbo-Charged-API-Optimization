@@ -1,6 +1,7 @@
 import Express, { Request, Response } from "express";
 import { PORT } from "./config";
 import { logger } from "./logger";
+import { client } from "./redis";
 
 const LOG_CONTEXT = "index";
 
@@ -120,7 +121,50 @@ const NOT_FOUND_MESSAGE = "NOT FOUND";
 
 const NEGATIVE_OR_ZERO_ID_PARAMETER_MESSAGE =
   "Id parameter should be positive and non-zero value";
-app.get(GET_PLANET_BY_ID_ROUTE, (req: Request, res: Response) => {
+
+function getPlanetRedisKey(planetId: number) {
+  return `planet:${planetId}`;
+}
+
+function isPlanet(jsonObj: unknown): jsonObj is (typeof planets)[0] {
+  if (typeof jsonObj !== "object" || jsonObj === null) {
+    return false;
+  }
+
+  if ("id" in jsonObj && "name" in jsonObj && "climate" in jsonObj) {
+    return (
+      typeof jsonObj.id === "number" &&
+      typeof jsonObj.name === "string" &&
+      typeof jsonObj.climate === "string"
+    );
+  }
+
+  return false;
+}
+
+async function fetchPlanetFromRedis(planetId: number) {
+  const planet = await client.json.get(getPlanetRedisKey(planetId));
+
+  if (!isPlanet(planet)) {
+    return undefined;
+  }
+
+  return planet;
+}
+
+async function savePlanetOnRedis(planet: (typeof planets)[0]) {
+  const result = await client.json.set(
+    getPlanetRedisKey(planet.id),
+    "$",
+    planet,
+  );
+
+  if (result !== "OK") {
+    LOG.warn("caching planet not sucessfull", { planet });
+  }
+}
+
+app.get(GET_PLANET_BY_ID_ROUTE, async (req: Request, res: Response) => {
   const id = req.params.id;
 
   if (typeof id === "undefined" || id === null) {
@@ -144,16 +188,29 @@ app.get(GET_PLANET_BY_ID_ROUTE, (req: Request, res: Response) => {
     return;
   }
 
+  const cachedPlanet = await fetchPlanetFromRedis(numericId);
+  if (cachedPlanet) {
+    res.send(cachedPlanet);
+    return;
+  }
+
   const planet = planets[numericId - 1];
 
   if (!planet) {
     res.statusCode = 404;
     res.send({ message: NOT_FOUND_MESSAGE });
+    return;
   }
 
-  setTimeout(() => {
-    res.send(planet);
-  }, 3000);
+  const savingPromise = savePlanetOnRedis(planet);
+  const sendResponsePromise = new Promise<void>((resolve) => {
+    setTimeout(() => {
+      res.send(planet);
+      resolve();
+    }, 3000);
+  });
+
+  await Promise.all([savingPromise, sendResponsePromise]);
 });
 
 app.listen(PORT, (err) => {
@@ -164,7 +221,7 @@ app.listen(PORT, (err) => {
 
 function returnHttpValidationException(
   res: Express.Response<any, Record<string, any>>,
-  message: string
+  message: string,
 ) {
   res.statusCode = 400;
   res.send({
