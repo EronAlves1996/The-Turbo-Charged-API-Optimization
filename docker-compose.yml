@@ -6,8 +6,16 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+  redis-replica:
+    image: redis:latest
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_replica_data:/data
+      - ./redis/replica/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
 volumes:
   redis_data:
     driver: local
-  pg_data:
+  redis_replica_data:
     driver: local

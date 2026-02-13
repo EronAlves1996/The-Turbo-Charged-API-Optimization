@@ -12,3 +12,5 @@ export const REDIS_URL = process.env.REDIS_URL || "";
 if (!REDIS_URL) {
   throw new Error(REDIS_URL_NOT_DEFINED_MESSAGE);
 }
+
+export const REDIS_REPLICA_URL = process.env.REDIS_REPLICA_URL || "";
