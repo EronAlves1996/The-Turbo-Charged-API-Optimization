@@ -6,16 +6,48 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+      - ./redis/master:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/redis.conf
   redis-replica:
     image: redis:latest
     ports:
       - "6380:6379"
     volumes:
       - redis_replica_data:/data
-      - ./redis/replica/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/replica:/usr/local/etc/redis
     command: redis-server /usr/local/etc/redis/redis.conf
+  redis-sentinel-1:
+    image: redis:latest
+    ports:
+      - "26379:26379"
+    volumes:
+      - redis_sentinel_1_data:/data
+      - ./redis/sentinels/1:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/sentinel.conf --sentinel
+  redis-sentinel-2:
+    image: redis:latest
+    ports:
+      - "26380:26379"
+    volumes:
+      - redis_sentinel_2_data:/data
+      - ./redis/sentinels/2:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/sentinel.conf --sentinel
+  redis-sentinel-3:
+    image: redis:latest
+    ports:
+      - "26381:26379"
+    volumes:
+      - redis_sentinel_3_data:/data
+      - ./redis/sentinels/3:/usr/local/etc/redis
+    command: redis-server /usr/local/etc/redis/sentinel.conf --sentinel
 volumes:
   redis_data:
     driver: local
   redis_replica_data:
+    driver: local
+  redis_sentinel_1_data:
+    driver: local
+  redis_sentinel_2_data:
+    driver: local
+  redis_sentinel_3_data:
     driver: local
