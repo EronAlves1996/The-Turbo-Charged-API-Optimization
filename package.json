@@ -4,7 +4,8 @@
   "description": "![Level 1](https://img.shields.io/badge/Level-1-blue) ![Level 13](https://img.shields.io/badge/Level-13-success) ![Days](https://img.shields.io/badge/Duration-13%20Days-green) ![Timebox](https://img.shields.io/badge/Timebox-2h%2FDay-orange)",
   "main": "index.js",
   "scripts": {
-    "start": "tsx ./src/index.ts"
+    "start": "tsx ./src/index.ts",
+    "tsc": "tsc"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,7 @@
   "dependencies": {
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
-    "redis": "^5.10.0",
+    "redis": "^5.11.0",
     "winston": "^3.19.0"
   }
 }

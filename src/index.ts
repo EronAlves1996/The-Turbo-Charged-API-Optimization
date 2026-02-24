@@ -2,6 +2,7 @@ import Express, { Request, Response } from "express";
 import { PORT } from "./config";
 import { logger } from "./logger";
 import { getPlanet } from "./repository";
+import { client } from "./redis";
 
 const LOG_CONTEXT = "index";
 
@@ -55,11 +56,15 @@ app.get(GET_PLANET_BY_ID_ROUTE, async (req: Request, res: Response) => {
   res.send(planet);
 });
 
-app.listen(PORT, (err) => {
-  if (!err) {
-    LOG.info(`app started at ${PORT}`);
-  }
-});
+(async () => {
+  await client;
+
+  app.listen(PORT, (err) => {
+    if (!err) {
+      LOG.info(`app started at ${PORT}`);
+    }
+  });
+})();
 
 function returnHttpValidationException(
   res: Express.Response<any, Record<string, any>>,

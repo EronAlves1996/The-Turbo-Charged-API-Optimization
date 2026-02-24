@@ -1,5 +1,6 @@
+import { RedisSentinelType } from "redis";
 import { logger } from "./logger";
-import { client, replicaClient } from "./redis";
+import { client } from "./redis";
 
 const LOG_CONTEXT = "repository";
 
@@ -114,6 +115,12 @@ const planets = [
   { id: 100, name: "Zion", climate: "Underground" },
 ];
 
+let redisClient: Awaited<typeof client> | undefined;
+
+(async () => {
+  redisClient = await client;
+})();
+
 function isPlanet(jsonObj: unknown): jsonObj is (typeof planets)[0] {
   if (typeof jsonObj !== "object" || jsonObj === null) {
     return false;
@@ -135,23 +142,19 @@ function getPlanetRedisKey(planetId: number) {
 }
 
 async function readJsonFromReplicatedCache(key: string) {
-  try {
-    return await replicaClient.json.get(key);
-  } catch (ex) {
-    LOG.error("Error occurred! Fallbacking to master redis", ex);
-    return await client.json.get(key).catch((ex) => {
-      LOG.error("Error occurred while fetching from master", ex);
-    });
-  }
+  LOG.debug("Trying to get planet key from redis cache", { key });
+  return await redisClient?.json.get(key);
 }
 
 async function fetchPlanetFromRedis(planetId: number) {
   const planet = await readJsonFromReplicatedCache(getPlanetRedisKey(planetId));
 
   if (!isPlanet(planet)) {
+    LOG.debug("Cache missed for planet", { planetId });
     return;
   }
 
+  LOG.debug("Planet recovered successfully", { planet });
   return planet;
 }
 
@@ -159,23 +162,26 @@ const REDIS_TTL = 60;
 
 async function savePlanetOnRedis(planet: (typeof planets)[0]) {
   const planetKey = getPlanetRedisKey(planet.id);
-  const result = await client.json.set(planetKey, "$", planet).catch((ex) => {
-    LOG.error("Error occurred while caching planet", ex);
-    return null;
-  });
+  const result = await redisClient?.json
+    .set(planetKey, "$", planet)
+    .catch((ex) => {
+      LOG.error("Error occurred while caching planet", ex);
+      return null;
+    });
 
   if (result !== "OK") {
     LOG.warn("caching planet not sucessfull", { planet });
   }
 
   try {
-    await client.expire(planetKey, REDIS_TTL);
+    await redisClient?.expire(planetKey, REDIS_TTL);
   } catch (ex) {
     LOG.error("error occurred while seting expire time", ex);
   }
 }
 
 export async function getPlanet(planetId: number) {
+  LOG.debug("Received a request for planet", { planetId });
   const cachedPlanet = await fetchPlanetFromRedis(planetId);
   if (cachedPlanet) {
     return cachedPlanet;
