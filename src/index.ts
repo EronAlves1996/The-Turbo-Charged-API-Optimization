@@ -3,6 +3,10 @@ import { PORT } from "./config";
 import { logger } from "./logger";
 import { getPlanet } from "./repository";
 import { client } from "./redis";
+import {
+  httpStoreCacheMiddleware,
+  httpRecoverCacheMiddleware,
+} from "./http-caching";
 
 const LOG_CONTEXT = "index";
 
@@ -20,6 +24,9 @@ const NOT_FOUND_MESSAGE = "NOT FOUND";
 
 const NEGATIVE_OR_ZERO_ID_PARAMETER_MESSAGE =
   "Id parameter should be positive and non-zero value";
+
+app.use(httpRecoverCacheMiddleware);
+app.use(httpStoreCacheMiddleware);
 
 app.get(GET_PLANET_BY_ID_ROUTE, async (req: Request, res: Response) => {
   const id = req.params.id;
