@@ -6,11 +6,12 @@ import { logger } from "./logger";
 const CACHE_CONTROL_HEADER = "Cache-Control";
 const PUBLIC_CACHE_CONTROL_VALUE = "public";
 const MAX_AGE_ONE_MINUTE = "max-age=60";
+const NO_MAX_CLIENT_AGE = "max-age=0";
+const MAX_PROXY_AGE_ONE_MINUTE = "s-maxage=60";
 
 const IF_NONE_MATCH_HEADER = "If-None-Match";
 
 const ETAG_HEADER = "ETag";
-const EMPTY_STRING = "";
 const SHA256_HASH_ALGORITHM = "sha256";
 const BASE64_ENCODING = "base64";
 
@@ -26,8 +27,8 @@ export const httpRecoverCacheMiddleware: RequestHandler = async (
   next,
 ) => {
   res.setHeader(CACHE_CONTROL_HEADER, [
-    PUBLIC_CACHE_CONTROL_VALUE,
-    MAX_AGE_ONE_MINUTE,
+    NO_MAX_CLIENT_AGE,
+    MAX_PROXY_AGE_ONE_MINUTE,
   ]);
 
   const cacheEtag = req.header(IF_NONE_MATCH_HEADER);

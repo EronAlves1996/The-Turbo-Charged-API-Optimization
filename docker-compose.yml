@@ -47,6 +47,14 @@ services:
       - redis-cluster-4
       - redis-cluster-5
       - redis-cluster-6
+  web:
+    image: nginx
+    volumes:
+      - ./nginx:/etc/nginx
+    network_mode: "host"
+    environment:
+      - NGINX_PORT=80
+
 #  redis:
 #    image: redis:latest
 #    network_mode: "host"
